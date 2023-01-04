@@ -10,6 +10,10 @@ def homepage(request):
     current_user = request.user
     superuser = User.objects.get(is_superuser=True)
     logs = Log.objects.all()
+    sum=0
+    for log in logs:
+        sum+=log.amount
+
     if request.method == 'POST':
         data = request.POST
         points = data.get('getPoints')
@@ -63,6 +67,8 @@ def homepage(request):
         cursor = connection.cursor()
         cursor.execute(query)
         cursor.execute('CALL public.buy_points(%s, %s)', [current_user.id, points])
+        
+        #trigger
         cursor.execute("DROP TRIGGER update_points ON users_log")
         cursor.execute("""
         CREATE OR REPLACE FUNCTION update_points_function()
